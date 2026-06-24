@@ -1,6 +1,6 @@
 {
     "userspace_version": "1.1",
     "build_targets": [
-        ["splitkb/kyria/rev1", "florent"]
+        ["splitkb/kyria/rev1/base", "florent"]
     ]
 }
