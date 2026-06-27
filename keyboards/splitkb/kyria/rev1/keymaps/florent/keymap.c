@@ -26,6 +26,7 @@ enum layers {
 
 enum custom_keycodes {
     KC_CCCV = SAFE_RANGE,
+    CTLSFT_LEAD,
     ENC_ALTTAB_CW,
     ENC_ALTTAB_CCW,
     ENC_CTRLTAB_CW,
@@ -48,10 +49,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                        `----------------------------------'  `----------------------------------'
  */
     [COLEMAK] = LAYOUT(
-             KC_GRV,  KC_Q,   KC_W,   KC_F,   KC_P,   KC_G,                                                                  KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_EQL,
-LT(SYMBOLS, KC_LGUI), KC_A,   KC_R,   KC_S,   KC_T,   KC_D,                                                                  KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
-MT(MOD_LSFT, KC_TAB), KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,     QK_LEAD,       KC_ESC,            QK_LEAD,          KC_CCCV, KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS,
-            KC_ENT, KC_LALT, LT(RAISE, KC_BSPC), MT(MOD_LSFT, KC_ENT), MT(MOD_LCTL, KC_TAB), MT(MOD_LCTL, KC_TAB), MT(MOD_LSFT, KC_ENT), LT(RAISE, KC_SPC), LT(SYMBOLS, KC_DEL), KC_MPLY
+             KC_GRV,  KC_Q,   KC_W,   KC_F,   KC_P,   KC_G,                                           KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_EQL,
+LT(SYMBOLS, KC_LGUI), KC_A,   KC_R,   KC_S,   KC_T,   KC_D,                                           KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
+MT(MOD_LSFT, KC_TAB), KC_Z,   KC_X,   KC_C,   KC_V,   KC_B, CTLSFT_LEAD, KC_ESC,     KC_PGUP,KC_PGDN, KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS,
+KC_ENT, KC_LALT, LT(RAISE, KC_BSPC), MT(MOD_LSFT, KC_ENT), MT(MOD_LCTL, KC_TAB),     MT(MOD_LCTL, KC_TAB), MT(MOD_LSFT, KC_ENT), LT(RAISE, KC_SPC), LT(SYMBOLS, KC_DEL), KC_MPLY
     ),
 /*
  * RAISE Layer: Numpad, Media
@@ -188,8 +189,9 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 #endif
 
 // ROTARY encoders variables
+uint16_t cs_lead_timer;
 bool is_alt_tab_active = false;
-uint16_t alt_tab_timer = 0;
+uint16_t alt_tab_timer;
 #define TABBING_TIMER 1000
 
 void matrix_scan_user(void) {
@@ -216,6 +218,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             break;
+        case CTLSFT_LEAD:
+            if (record->event.pressed) {
+                cs_lead_timer = timer_read();
+                register_code(KC_LCTL);
+                register_code(KC_LSFT);
+            } else {
+                unregister_code(KC_LCTL);
+                unregister_code(KC_LSFT);
+                if (timer_elapsed(cs_lead_timer) < TAPPING_TERM) {
+                    leader_start();  // it was a tap, not a hold
+                }
+            }
+            return false;
+
         case ENC_ALTTAB_CW:
         case ENC_ALTTAB_CCW:
             if (record->event.pressed) {
