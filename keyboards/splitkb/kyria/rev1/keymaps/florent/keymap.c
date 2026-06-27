@@ -180,8 +180,8 @@ void leader_end_user(void) {
 
 #ifdef ENCODER_MAP_ENABLE
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [COLEMAK] = { ENCODER_CCW_CW(ENC_ALTTAB_CCW,  ENC_ALTTAB_CW),  ENCODER_CCW_CW(KC_RIGHT, KC_LEFT) },
-    [RAISE]   = { ENCODER_CCW_CW(ENC_CTRLTAB_CCW, ENC_CTRLTAB_CW), ENCODER_CCW_CW(C(KC_RIGHT), C(KC_LEFT)) },
+    [COLEMAK] = { ENCODER_CCW_CW(ENC_ALTTAB_CW,  ENC_ALTTAB_CCW),  ENCODER_CCW_CW(KC_RIGHT, KC_LEFT) },
+    [RAISE]   = { ENCODER_CCW_CW(ENC_CTRLTAB_CW, ENC_CTRLTAB_CCW), ENCODER_CCW_CW(C(KC_RIGHT), C(KC_LEFT)) },
     [SYMBOLS] = { ENCODER_CCW_CW(KC_BRIU, KC_BRID),                ENCODER_CCW_CW(KC_VOLU, KC_VOLD) },
     [ADJUST]  = { ENCODER_CCW_CW(KC_VOLU, KC_VOLD),                ENCODER_CCW_CW(KC_VOLU, KC_VOLD) },
 };
@@ -224,7 +224,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     is_alt_tab_active = true;
                     register_code(KC_LALT);
                 }
-                tap_code16(keycode == ENC_ALTTAB_CW ? S(KC_TAB) : KC_TAB);
+                tap_code16(keycode == ENC_ALTTAB_CCW ? S(KC_TAB) : KC_TAB);
             }
             return false;
 
@@ -236,7 +236,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     is_alt_tab_active = true;
                     register_code(KC_LCTL);
                 }
-                tap_code16(keycode == ENC_CTRLTAB_CW ? S(KC_TAB) : KC_TAB);
+                tap_code16(keycode == ENC_CTRLTAB_CCW ? S(KC_TAB) : KC_TAB);
             }
             return false;
     }
