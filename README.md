@@ -39,6 +39,17 @@ This is a template repository which allows for an external set of QMK keymaps to
 
 Alternatively, if you configured your build targets above, you can use `qmk userspace-compile` to build all of your userspace targets at once.
 
+### Compile and flash
+Compile and flash the keyboard from the `qmk_firmware` folder:
+```shell
+qmk userspace-compile
+qmk flash -kb splitkb/kyria/rev1 -km florent -bl dfu-split-left;
+```
+You also need to flash at some point the right half (at least once, and up-to-date firmware if you wish to plug the cable in this half):
+```shell
+qmk flash -kb splitkb/kyria/rev1 -km florent -bl dfu-split-right;
+```
+
 ## Extra info
 
 If you wish to point GitHub actions to a different repository, a different branch, or even a different keymap name, you can modify `.github/workflows/build_binaries.yml` to suit your needs.
