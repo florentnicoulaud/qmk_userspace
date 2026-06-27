@@ -110,8 +110,8 @@ KC_ENT, KC_LALT, LT(RAISE, KC_BSPC), MT(MOD_LSFT, KC_ENT), MT(MOD_LCTL, KC_TAB),
  */
     [ADJUST] = LAYOUT(
       _______, _______, _______, _______, _______, _______,                                     _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  _______,
-      _______, _______, UG_SATU, UG_HUEU, UG_VALU, _______,                                     _______, KC_F4,   KC_F5,   KC_F6,   KC_F11,  _______,
-      _______, _______, UG_SATD, UG_HUED, UG_VALD, _______, _______, _______, _______, _______, _______, KC_F1,   KC_F2,   KC_F3,   KC_F12,  _______,
+      _______, UG_SPDU, UG_SATU, UG_HUEU, UG_VALU, UG_NEXT,                                     _______, KC_F4,   KC_F5,   KC_F6,   KC_F11,  _______,
+      _______, UG_SPDD, UG_SATD, UG_HUED, UG_VALD, UG_PREV, _______, _______, _______, _______, _______, KC_F1,   KC_F2,   KC_F3,   KC_F12,  _______,
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
     ),
 // /*
@@ -136,6 +136,7 @@ KC_ENT, KC_LALT, LT(RAISE, KC_BSPC), MT(MOD_LSFT, KC_ENT), MT(MOD_LCTL, KC_TAB),
 //     ),
 };
 
+// holding both RAISE and SYMBOLS enables ADJUST layer
 layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, RAISE, SYMBOLS, ADJUST);
 }
@@ -290,7 +291,7 @@ bool oled_task_user(void) {
                 oled_write_P(PSTR("SYMBOLS\n"), false);
                 break;
             case ADJUST:
-                oled_write_P(PSTR("Adjust\n"), false);
+                oled_write_P(PSTR("ADJUST\n"), false);
                 break;
             default:
                 oled_write_P(PSTR("Undefined\n"), false);
