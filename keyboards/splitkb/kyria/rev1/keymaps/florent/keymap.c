@@ -25,7 +25,11 @@ enum layers {
 };
 
 enum custom_keycodes {
-    KC_CCCV = SAFE_RANGE
+    KC_CCCV = SAFE_RANGE,
+    ENC_ALTTAB_CW,
+    ENC_ALTTAB_CCW,
+    ENC_CTRLTAB_CW,
+    ENC_CTRLTAB_CCW,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -135,23 +139,6 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, RAISE, SYMBOLS, ADJUST);
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case KC_CCCV:  // One key copy/paste
-            if (record->event.pressed) {
-                copy_paste_timer = timer_read();
-            } else {
-                if (timer_elapsed(copy_paste_timer) > TAPPING_TERM) {  // Hold, copy
-                    tap_code16(LCTL(KC_C));
-                } else { // Tap, paste
-                    tap_code16(LCTL(KC_V));
-                }
-            }
-            break;
-    }
-    return true;
-}
-
 // LEADER config starts here
 void leader_end_user(void) {
     if (leader_sequence_one_key(KC_K)) {
@@ -191,6 +178,15 @@ void leader_end_user(void) {
 // ROTARY encoders starts here
 #ifdef ENCODER_ENABLE
 
+#ifdef ENCODER_MAP_ENABLE
+const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
+    [COLEMAK] = { ENCODER_CCW_CW(ENC_ALTTAB_CCW,  ENC_ALTTAB_CW),  ENCODER_CCW_CW(KC_RIGHT, KC_LEFT) },
+    [RAISE]   = { ENCODER_CCW_CW(ENC_CTRLTAB_CCW, ENC_CTRLTAB_CW), ENCODER_CCW_CW(C(KC_RIGHT), C(KC_LEFT)) },
+    [SYMBOLS] = { ENCODER_CCW_CW(KC_BRIU, KC_BRID),                ENCODER_CCW_CW(KC_VOLU, KC_VOLD) },
+    [ADJUST]  = { ENCODER_CCW_CW(KC_VOLU, KC_VOLD),                ENCODER_CCW_CW(KC_VOLU, KC_VOLD) },
+};
+#endif
+
 // ROTARY encoders variables
 bool is_alt_tab_active = false;
 uint16_t alt_tab_timer = 0;
@@ -207,75 +203,44 @@ void matrix_scan_user(void) {
     }
 }
 
-bool encoder_update_user(uint8_t index, bool clockwise) {
-    if (index == 0) {
-        switch (biton32(layer_state)) {
-            case COLEMAK:
-                // Alt tab
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case KC_CCCV:  // One key copy/paste
+            if (record->event.pressed) {
+                copy_paste_timer = timer_read();
+            } else {
+                if (timer_elapsed(copy_paste_timer) > TAPPING_TERM) {  // Hold, copy
+                    tap_code16(LCTL(KC_C));
+                } else { // Tap, paste
+                    tap_code16(LCTL(KC_V));
+                }
+            }
+            break;
+        case ENC_ALTTAB_CW:
+        case ENC_ALTTAB_CCW:
+            if (record->event.pressed) {
                 alt_tab_timer = timer_read();
                 if (!is_alt_tab_active) {
-                  is_alt_tab_active = true;
-                  register_code(KC_LALT);
+                    is_alt_tab_active = true;
+                    register_code(KC_LALT);
                 }
-                if (!clockwise) {
-                  tap_code16(KC_TAB);
-                } else {
-                  tap_code16(S(KC_TAB));
-                }
-                break;
-            case RAISE:
-                // Ctrl tab
+                tap_code16(keycode == ENC_ALTTAB_CW ? S(KC_TAB) : KC_TAB);
+            }
+            return false;
+
+        case ENC_CTRLTAB_CW:
+        case ENC_CTRLTAB_CCW:
+            if (record->event.pressed) {
                 alt_tab_timer = timer_read();
                 if (!is_alt_tab_active) {
-                  is_alt_tab_active = true;
-                  register_code(KC_LCTL);
+                    is_alt_tab_active = true;
+                    register_code(KC_LCTL);
                 }
-                if (!clockwise) {
-                  tap_code16(KC_TAB);
-                } else {
-                  tap_code16(S(KC_TAB));
-                }
-                break;
-            case SYMBOLS:
-                // Brightness control
-                if (!clockwise) {
-                    tap_code16(KC_VOLU);
-                } else {
-                    tap_code16(KC_VOLD);
-                }
-                break;
-        }
-    // ROTARY ON OTHER HALF
-    } else if (index == 1) {
-        clockwise = !clockwise;  // right half is mirrored, flip direction
-        switch (biton32(layer_state)) {
-            case COLEMAK:
-                // Left / Right
-                if (clockwise) {
-                    tap_code16(KC_RIGHT);
-                } else {
-                    tap_code16(KC_LEFT);
-                }
-                break;
-            case RAISE:
-                // CTRL Left / CTRL Right
-                if (clockwise) {
-                    tap_code16(C(KC_RIGHT));
-                } else {
-                    tap_code16(C(KC_LEFT));
-                }
-                break;
-            case SYMBOLS:
-                // Volume control.
-                if (clockwise) {
-                    tap_code(KC_VOLU);
-                } else {
-                    tap_code(KC_VOLD);
-                }
-                break;
-        }
+                tap_code16(keycode == ENC_CTRLTAB_CW ? S(KC_TAB) : KC_TAB);
+            }
+            return false;
     }
-    return false;
+    return true;
 }
 #endif
 
