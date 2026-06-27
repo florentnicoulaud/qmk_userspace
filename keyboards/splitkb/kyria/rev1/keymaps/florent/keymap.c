@@ -152,10 +152,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-// ROTARY variables
-bool is_alt_tab_active = false;
-uint16_t alt_tab_timer = 0;
-
 // LEADER config starts here
 void leader_end_user(void) {
     if (leader_sequence_one_key(KC_K)) {
@@ -182,10 +178,28 @@ void leader_end_user(void) {
     }
 }
 
+// #if defined(ENCODER_MAP_ENABLE)
+// const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
+//     [0] = { ENCODER_CCW_CW(KC_RIGHT, KC_LEFT),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU)  },
+//     [1] = { ENCODER_CCW_CW(UG_HUED, UG_HUEU),  ENCODER_CCW_CW(UG_SATD, UG_SATU)  },
+//     [2] = { ENCODER_CCW_CW(UG_VALD, UG_VALU),  ENCODER_CCW_CW(UG_SPDD, UG_SPDU)  },
+//     [3] = { ENCODER_CCW_CW(UG_PREV, UG_NEXT),  ENCODER_CCW_CW(KC_RIGHT, KC_LEFT) },
+// };
+// #endif
+
+
+// ROTARY encoders starts here
+#ifdef ENCODER_ENABLE
+
+// ROTARY encoders variables
+bool is_alt_tab_active = false;
+uint16_t alt_tab_timer = 0;
+#define TABBING_TIMER 1000
+
 void matrix_scan_user(void) {
     // this is for ROTARY alt tab
     if (is_alt_tab_active) {
-        if (timer_elapsed(alt_tab_timer) > 1500) {
+        if (timer_elapsed(alt_tab_timer) > TABBING_TIMER) {
           unregister_code(KC_LALT);
           unregister_code(KC_LCTL);
           is_alt_tab_active = false;
@@ -193,20 +207,17 @@ void matrix_scan_user(void) {
     }
 }
 
-
-// ROTARY encoders starts here
-#ifdef ENCODER_ENABLE
 bool encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 0) {
         switch (biton32(layer_state)) {
             case COLEMAK:
                 // Alt tab
+                alt_tab_timer = timer_read();
+                if (!is_alt_tab_active) {
+                  is_alt_tab_active = true;
+                  register_code(KC_LALT);
+                }
                 if (!clockwise) {
-                  if (!is_alt_tab_active) {
-                    is_alt_tab_active = true;
-                    register_code(KC_LALT);
-                  }
-                  alt_tab_timer = timer_read();
                   tap_code16(KC_TAB);
                 } else {
                   tap_code16(S(KC_TAB));
@@ -214,19 +225,19 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
                 break;
             case RAISE:
                 // Ctrl tab
+                alt_tab_timer = timer_read();
+                if (!is_alt_tab_active) {
+                  is_alt_tab_active = true;
+                  register_code(KC_LCTL);
+                }
                 if (!clockwise) {
-                  if (!is_alt_tab_active) {
-                    is_alt_tab_active = true;
-                    register_code(KC_LCTL);
-                  }
-                  alt_tab_timer = timer_read();
                   tap_code16(KC_TAB);
                 } else {
                   tap_code16(S(KC_TAB));
                 }
                 break;
-            default:
-                // Ctrl tab
+            case SYMBOLS:
+                // Brightness control
                 if (!clockwise) {
                     tap_code16(KC_VOLU);
                 } else {
@@ -234,7 +245,9 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
                 }
                 break;
         }
+    // ROTARY ON OTHER HALF
     } else if (index == 1) {
+        clockwise = !clockwise;  // right half is mirrored, flip direction
         switch (biton32(layer_state)) {
             case COLEMAK:
                 // Left / Right
@@ -252,7 +265,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
                     tap_code16(C(KC_LEFT));
                 }
                 break;
-            default:
+            case SYMBOLS:
                 // Volume control.
                 if (clockwise) {
                     tap_code(KC_VOLU);
