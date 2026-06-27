@@ -70,8 +70,8 @@ MT(MOD_LSFT, KC_TAB), KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,     QK_LEAD,       K
     [RAISE] = LAYOUT(
       _______, KC_1,       KC_2,       KC_3,       KC_4,       KC_5,                                                          KC_6,       KC_7,       KC_8,       KC_9,       KC_0,       KC_PIPE,
       KC_EXLM, RALT(KC_A), RALT(KC_R), KC_HOME,    KC_END,     RALT(KC_D),                                                    RALT(KC_U), RALT(KC_N), RALT(KC_E), RALT(KC_I), RALT(KC_O), RALT(KC_QUOT),
-      UG_TOGG, RALT(KC_Z), RALT(KC_X), RALT(KC_C), RALT(KC_V), RALT(KC_P), _______, _______,          KC_PGUP,       KC_DOWN,  _______,   KC_LEFT,    KC_UP,      KC_DOWN,    KC_RGHT,    KC_BSLS,
-                                 _______, _______, _______, _______, _______,                         LCTL(KC_LEFT), _______, _______, LCTL(KC_RGHT), _______
+      UG_TOGG, RALT(KC_Z), RALT(KC_X), RALT(KC_C), RALT(KC_V), RALT(KC_P), _______, _______,          KC_PGUP,     KC_PGDN,  _______,   KC_LEFT,    KC_UP,      KC_DOWN,    KC_RGHT,    KC_BSLS,
+                                 _______, _______, _______, _______, _______,                         LCTL(KC_LEFT), LCTL(KC_RGHT), _______, _______, _______
     ),
 /*
  * SYMBOLS Layer: Symbols
